@@ -75,18 +75,24 @@ with open(source_file) as source_ptr:
 			# Parse Title
 			title_obj = re.search (r'^Title: (.*)\r\n', line, re.M|re.I)
 			if title_obj:
-				title = csv_format(title_obj.group(1))
-				continue
+				try:
+					title = csv_format(title_obj.group(1))
+					continue
+				except Exception, e:
+					title = NULL_STR
 
 			author_obj = re.search (r'^Author: (.*)\r\n', line, re.M|re.I)
 			if author_obj:
-				line = re.sub("Author:  ", "Author: ", line)
-				if DOUBLE_SPACE in line:
-					line = line.split(DOUBLE_SPACE)[0]
-				else:
-					line = line.split('\r\n')[0]
-				author = csv_format (line.split(": ")[1])
-				continue
+				try:
+					line = re.sub("Author:  ", "Author: ", line)
+					if DOUBLE_SPACE in line:
+						line = line.split(DOUBLE_SPACE)[0]
+					else:
+						line = line.split('\r\n')[0]
+					author = csv_format (line.split(": ")[1])
+					continue
+				except Exception, e:
+					author = NULL_STR
 
 			release_date_and_ebookID = re.search (r'^Release Date: (.*)\s\[..... #(.*)\]\r\n', line, re.M|re.I)
 			if release_date_and_ebookID:
@@ -102,18 +108,16 @@ with open(source_file) as source_ptr:
 
 			language_obj = re.search(r'^Language: (.*)\r\n', line, re.M|re.I)
 			if language_obj:
-				language = csv_format(language_obj.group(1))
-				continue
+				try:
+					language = csv_format(language_obj.group(1))
+					continue
+				except Exception, e:
+					language = NULL_STR
 		else:
 			escape_line = re.sub(SINGLE_QUOTE, DOUBLE_QUOTE, line)
 			ebook_csv_ptr.write(escape_line)
 			# process tokens.csv
 			line = re.sub(NON_ALPHABETICAL, SPACE, line).lower()
-			# VERSION 1
-			# line = ' '.join(line.split())
-			# line = re.sub(SPACE, ',%s\r\n' % (ebook_id), line)
-			# tokens_csv_ptr.write(line)
-			# VERSION 2
 			for word in line.split():
 				tokens_csv_ptr.write("%s,%s\r\n"% (ebook_id, word))
 	source_ptr.close()
