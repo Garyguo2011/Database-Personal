@@ -36,14 +36,14 @@ fi
 
 if [ -f ${token_counts_csv_file} ]; then
 	rm ${token_counts_csv_file}
-	echo "token,count" > ${token_counts_csv_file}
 fi
+echo "token,count" > ${token_counts_csv_file}
 
 if [ -f ${name_counts_csv_file} ]; then
 	rm ${name_counts_csv_file}
-	echo "token,count" > ${name_counts_csv_file}
-	touch ${tmp_file}
 fi
+echo "token,count" > ${name_counts_csv_file}
+touch ${tmp_file}
 
 # Generate ebook.csv tokens.csv
 python ${process_ebook_tokens_script} ${source_file}
