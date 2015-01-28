@@ -10,7 +10,7 @@ source_file = sys.argv[1]
 try:
 	test_ptr = open(source_file)
 	test_ptr.close()
-except:
+except Exception, e:
 	print("ERROR: '%s' DOES NOT EXITST" % source_file)
 	sys.exit()
 
@@ -28,9 +28,6 @@ ebook_csv_file="ebook.csv"
 ebook_csv_header = "title,author,release_date,ebook_id,language,body\r\n"
 ebook_csv_ptr = open(ebook_csv_file,"w")
 ebook_csv_ptr.write(ebook_csv_header)
-
-# ebook_csv_writer = csv.writer(ebook_csv_ptr, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-# ebook_csv_writer.writerow(['title', 'author', 'release_date', 'ebook_id', 'language', 'body'])
 
 # Initialize tokens.csv
 tokens_csv_file="tokens.csv"
@@ -102,6 +99,7 @@ with open(source_file) as source_ptr:
 					release_date = csv_format(line.split(': ')[1].split(' [')[0])
 					# Parse ebook_id
 					ebook_id = csv_format(line.split(' #')[1].split(']\r\n')[0])
+					continue
 				except Exception, e:
 					release_date = NULL_STR
 					ebook_id = NULL_STR
