@@ -2,7 +2,7 @@
 
 In this assignment you'll implement UDF (user-defined function) result caching in [Apache Spark](http://spark.apache.org), which is a framework for distributed computing in the mold of MapReduce. This project will illustrate key concepts in data rendezvous and query evaluation, and you'll get some hands-on experience modifying Spark, which is both widely used in the field, and developed right here at Berkeley. In addition, you'll get exposure to Scala, a JVM-based language that is gaining popularity for its clean functional style.
 
-This assignment is due **Tuesday, February 12th at 11:59 PM** and is worth **10% of your final grade**. This project is an excellent opportunity to collaborate, and we'll require that you complete it **in pairs**. ***Please fill out [this form](http://goo.gl/forms/KYtFYc4cUG) by Monday, February 2nd at 11:59pm***.
+This assignment is due **Thursday, February 12th at 11:59 PM** and is worth **10% of your final grade**. This project is an excellent opportunity to collaborate, and we'll require that you complete it **in pairs**. ***Please fill out [this form](http://goo.gl/forms/KYtFYc4cUG) by Monday, February 2nd at 11:59pm***.
 
 Lastly, there is a lot of code in this directory. Please look [here](https://github.com/cs186-spring15/course/tree/master/hw2#fetching-the-code) here to find the directory where the code is located.
 
@@ -14,7 +14,7 @@ Lastly, there is a lot of code in this directory. Please look [here](https://git
 
 # Spark
 
-Spark is an open-source distributed computing system written in [Scala](http://www.scala-lang.org). The project was started by Ph.D. students from our very own [AMPLab](amplab.cs.berkeley.edu) and is an integral part of the [Berkeley Data Analytics Stack](https://amplab.cs.berkeley.edu/software/) (BDAS—affectionately pronounced "bad-ass").
+Spark is an open-source distributed computing system written in [Scala](http://www.scala-lang.org). The project was started by Ph.D. students from our very own [AMPLab](https://amplab.cs.berkeley.edu) and is an integral part of the [Berkeley Data Analytics Stack](https://amplab.cs.berkeley.edu/software/) (BDAS—affectionately pronounced "bad-ass").
 
 Like Hadoop MapReduce, Spark is designed to run functions over large collections of data, by supporting a simplified set of high-level data processing operations akin to the iterators we've been learning about in class. One of the most common uses of such systems is to implement parallel query processing in high level languages such as SQL. In fact, many recent research and development efforts in Spark have gone towards supporting a scalable and interactive relational database abstraction.
 
@@ -47,7 +47,7 @@ We will be holding a language workshop on Scala at some point. Stay tuned for an
 
 User-defined functions allow developers to define and exploit custom operations within expressions.  Imagine, for example, that you have a product catalog that includes photos of the product packaging.  You may want to register a user-defined function `extract_text` that calls an OCR algorithm and returns the text in an image, so that you can get queryable information out of the photos.  In SQL, you could imagine a query like this:
 	
-	SELECT P.name, P. manufacturer, P.price, extract_text(P.image), 
+	SELECT P.name, P.manufacturer, P.price, extract_text(P.image), 
 	  FROM Products P;
 	 
 The ability to register UDFs is very powerful -- it essentially turns your data processing framework into a general distributed computing framework.  But UDFs can often introduce performance bottlenecks, especially as we run them over millions of data items. 
@@ -82,27 +82,33 @@ There are some potentially confusing differences between the terminology we use 
 
 ## Updating your VM
 
-As you can imagine, there are a number of dependencies and tools that you might be using while working on Spark. We have updated the VM to have the tools that you are going to need in order to complete this project. The next time you run `vagrant up`, you should get a notice that a newer box is available. 
+As you can imagine, there are a number of dependencies and tools that you might be using while working on Spark. We have updated the VM image to have the tools that you are going to need in order to complete this project.
 
-**NOTE**: When you choose to update your box, the update could wipe out things you had in there previously!  Be sure to move anything you care about out of your box, e.g. by doing a git push or by copying relevant things to the [synced folder /vagrant](https://docs.vagrantup.com/v2/getting-started/synced_folders.html) within the VM.
+Follow these instructions to update your VM:
 
-When you're ready to get the update, run `vagrant box update`.  Your VM should now be ready to build and run Spark.  (We also tossed in emacs and vim this time for good measure.)
+* First, move anything you care about out of your box, e.g. by doing a git push or by copying relevant things to the [synced folder /vagrant](https://docs.vagrantup.com/v2/getting-started/synced_folders.html) within the VM. *The update will wipe out any other files you had in there previously!*
+
+* From the directory with your `Vagrantfile`, run `vagrant box update` to download the updated box to your machine.
+
+* Run `vagrant destroy` followed by `vagrant up`
+
+* You can now `vagrant ssh` and your VM should be ready to build and run Spark.  (We also tossed in emacs and vim this time for good measure.)
 
 ## Pulling the framework
 
 ### Ensuring you have the correct remotes
 
-In your, please first clone your group repo.
+In your VM, please first clone your group repo.
 
-<pre><code>git clone https://github.com/cs186-spring15/xxxx.git
+<pre><code>git clone https://github.com/cs186-spring15/group-xxx.git
 </code></pre>
 
 where `xxxx` will be your group repo name.
 
-Next, please ensure that you have the correct remotes. Your personal repo might be called `origin` or `personal` or something.
+Next, please ensure that you have the correct remotes. Your group repo might be called `origin` or `group` or something.
 <pre><code>$ git remote -v
-origin	https://github.com/cs186-spring15/xx (fetch)
-origin	https://github.com/cs186-spring15/xx (push)
+origin	https://github.com/cs186-spring15/group-xxx (fetch)
+origin	https://github.com/cs186-spring15/group-xxx (push)
 course	https://github.com/cs186-spring15/course (fetch)
 course	https://github.com/cs186-spring15/course (push)
 </code></pre>
@@ -156,7 +162,7 @@ Hint: Think carefully about why these methods might be a part of the Utils
 ## Disk-Partitioned UDF Caching
 
 Now comes the moment of truth! We've implemented disk-based hash partitioning, and we've implemented in-memory UDF caching -- what is sometimes called [memoization](http://en.wikipedia.org/wiki/Memoization). Memoization is very powerful tool in many contexts, but here in databases-land, we deal with larger amounts of data than memoization can handle. If we have more unique values than can fit in an in-memory cache, our performance will rapidly degrade. 
-Thus, we fall back to the time-honored databases tradition of divide-and-conquer. If our data does not fit in memory, then we can partition it to disk once, read one partition in at a time (think about why this works (hint: rendezvous!)), and perform UDF caching and evaulation one partition at a time. 
+Thus, we fall back to the time-honored databases tradition of divide-and-conquer. If our data does not fit in memory, then we can partition it to disk once, read one partition in at a time (think about why this works (hint: rendezvous!)), and perform UDF caching, evaluating one partition at a time. 
 
 ### Task 4: Implementing `PartitionProject`
 
@@ -174,15 +180,19 @@ One of Spark's main selling points is that it is "in-memory". What they mean is 
 
 We have provided you some sample tests in `DiskPartitionSuite.scala`, `DiskHasedRelationSuite.scala`, `CS186UtilsSuite.scala` and `ProjectSuite.scala`. These tests can guide you as you complete this project. However, keep in mind that they are *not* comprehensive, and you are well advised to write your own tests to catch bugs. Hopefully, you can use these tests as models to generate your own tests. 
 
-In order to run our tests, we have provided a simple Makefile. In order to run the tests for task 1, run `make t1`. Correspndingly for task, run `make t2`, and the same for all other tests. `make all` will run all the tests. 
+In order to run our tests, we have provided a simple Makefile. In order to run the tests for task 1, run `make t1`. Correspondingly for task, run `make t2`, and the same for all other tests. `make all` will run all the tests. 
 
 ### Assignment autograder
 
-We will provide an autograder on this assignment. To run the autograder on your assignment, push a branch called `ag/hw2` to your personal repository. Keep in mind that you must still submit this assignment by pushing a branch called `release/hw2`: **we will not grade submissions to the autograder!**
+We will provide an autograder on this assignment. To run the autograder on your assignment, push a branch called `ag/hw2` to your group repository. Keep in mind that you must still submit this assignment by pushing a branch called `release/hw2`: **we will not grade submissions to the autograder!**
 
     $ git checkout -b ag/hw2
     $ git push origin ag/hw2
 
-Our machines will e-mail you the results of the autograder within a few minutes. **Please note that the autograder is not yet set up. We will aim to have it running by early next week.**
+Our machines will e-mail you the results of the autograder within an hour. If you do not receive a response after an hour, please *first* double-check that all your files are in the right place and that you pushed a commit to `ag/hw2`, and *then* notify us that you haven't received a response.
+
+### Assignment submission
+
+To submit your assignment, as before, push a branch containing the commit you want us to grade to `release/hw2`. This is separate from the autograder; pushing a commit here will not trigger the autograder, and vice-versa.
 
 Good luck!
