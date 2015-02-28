@@ -74,33 +74,21 @@ AS
 -- Find the names of candidates have received contributions from more than 1% of all committees.
 CREATE VIEW q4 (name)
 AS
-  WITH total_committees AS (
-    SELECT COUNT(DISTINCT C.id)
-    FROM committees C 
-  ), WITH 
-  SELECT D.name
-  FROM candidates as D,
-  WHERE D.id IN 
-    ( SELECT T.cand_id
-      FROM committee_contributions AS T
-      WHERE 
-    )
-
-
-  SELECT CAND.name -- replace this line
-  FROM candidates as CAND, 
-  WHERE CAND.id IN
-
-  SELECT COUNT(DISTINCT C.id)
-  FROM committees C
+  WITH cand_cmte (cand_name, cand_id, cmte_id) AS (
+    SELECT C.name, T.cand_id, T.cmte_id
+    FROM candidates AS C, committee_contributions AS T
+    WHERE C.id = T.cand_id
+    GROUP BY C.name, T.cand_id, T.cmte_id
+  ), count_cmte (name, id, count_num) AS ( 
+    SELECT CACM.cand_name, CACM.cand_id, COUNT(*)
+    FROM cand_cmte AS CACM
+    GROUP BY CACM.cand_name, CACM.cand_id
+    HAVING COUNT(*) * 100 > (SELECT COUNT(*) FROM committees)
+    ORDER BY CACM.cand_name
+  )
+  SELECT M.name
+  FROM count_cmte AS M
   ;
-
-  SELECT T.cand_id
-  FROM committee_contributions AS T
-  GROUP BY T.cand_id, T.cmte_id
-  ;
-
-
 ;
 
 -- Question 5
