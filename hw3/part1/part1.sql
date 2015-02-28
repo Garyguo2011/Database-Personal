@@ -124,5 +124,16 @@ CREATE VIEW q6 (id) AS
 
 -- Question 7
 CREATE VIEW q7 (cand_name1, cand_name2) AS
-  SELECT 1,1 -- replace this line
+  WITH ri_cmte AS (
+    SELECT * 
+    FROM committee_contributions
+    WHERE state = 'RI'
+  )
+  SELECT C1.name, C2.name
+  FROM ri_cmte AS RI1, candidates AS C1,
+       ri_cmte AS RI2, candidates AS C2
+  WHERE RI1.cand_id != RI2.cand_id AND RI1.cmte_id = RI2.cmte_id
+        AND RI1.cand_id = C1.id AND RI2.cand_id = C2.id
+  GROUP BY C1.name, C2.name
+  ;
 ;
