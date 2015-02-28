@@ -91,7 +91,7 @@ def maxflow(bfs_max_iterations=float('inf'), flow_max_iterations=float('inf')):
                     WHERE 
                         P.nodes[array_length(P.nodes, 1)] = E.src
                         AND E.capacity > 0
-                        AND E.dst != ANY(P.nodes)
+                        AND NOT E.dst = ANY(P.nodes)
                     ;
 
                     DROP TABLE IF EXISTS paths CASCADE;
@@ -146,25 +146,25 @@ def maxflow(bfs_max_iterations=float('inf'), flow_max_iterations=float('inf')):
         db.execute("""
             WITH updates(id, new_capacity) AS (
                 SELECT 
-                    FTR.edge_id AS id,
-                    (E.capacity - FTR.flow) AS new_capacity
+                    FR.edge_id AS id,
+                    (E.capacity - FR.flow) AS new_capacity
                 FROM 
-                    flow_to_route AS FTR,
+                    flow_to_route AS FR,
                     edge as E
-                WHERE E.id = FTR.edge_id
+                WHERE E.id = FR.edge_id
 
                 UNION
 
                 SELECT
                     FE.reverse_id AS id,
-                    (E2.capacity + FTR.flow) AS new_capacity
+                    (E2.capacity + FR.flow) AS new_capacity
                 FROM 
-                    flow_to_route as FTR,
+                    flow_to_route as FR,
                     flip_edge as FE,
                     edge as E1,
                     edge as E2
                 WHERE 
-                    E1.id = FTR.edge_id 
+                    E1.id = FR.edge_id 
                     AND E1.id = FE.forward_id
                     AND E2.id = FE.reverse_id
             )
