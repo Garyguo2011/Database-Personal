@@ -81,9 +81,18 @@ def maxflow(bfs_max_iterations=float('inf'), flow_max_iterations=float('inf')):
             # Hints: a JOIN would be helpful here. Also check the documentation to
             # see how array concatenation work in Postgres.
             db.execute("""
-                    SELECT ???
+                    SELECT 
+                        P.path || E.id AS path,
+                        P.nodes || E.dst AS nodes
                     INTO tmp
-                    ???;
+                    FROM 
+                        paths AS P, 
+                        edge AS E
+                    WHERE 
+                        p.nodes[array_length(p.nodes, 1)] = E.src
+                        AND e.capacity > 0
+                        AND e.dst != ANY(p.nodes)
+                    ;
 
                     DROP TABLE IF EXISTS paths CASCADE;
                     ALTER TABLE tmp RENAME TO paths;
@@ -118,7 +127,15 @@ def maxflow(bfs_max_iterations=float('inf'), flow_max_iterations=float('inf')):
                 SELECT unnest(path) AS path_edge FROM chosen_route
             ),
             constraining_capacity(capacity) AS (
-                ???
+                SELECT 
+                    MIN(E.capacity) as capacity
+                FROM 
+                    edge AS E
+                WHERE 
+                    E.id IN (
+                        SELECT unnest(PATH) 
+                        FROM chosen_route
+                    )
             )
             SELECT path_edge AS edge_id, (SELECT * FROM constraining_capacity) as flow 
             INTO flow_to_route FROM path_edges;
@@ -128,12 +145,23 @@ def maxflow(bfs_max_iterations=float('inf'), flow_max_iterations=float('inf')):
         # Then, update the `edges` table
         db.execute("""
             WITH updates(id, new_capacity) AS (
-                ???
+                SELECT
+                    FE.reverse_id as id,
+                    (E2.capacity + FTR.flow) AS new_capacity
+                FROM 
+                    flow_to_route as FTR,
+                    flip_edge as FE,
+                    edge as E1,
+                    edge as E2
+                WHERE 
+                    E1.id = FTR.edge_id 
+                    AND E1.id = FE.forward_id
+                    AND E2.id = FE.reverse_id
             )
             UPDATE edge
-              SET ???
+              SET capacity = new_capacity
               FROM updates
-              WHERE ???;
+              WHERE edge.id = updates.id;
             """)
 
         # DO NOT EDIT
