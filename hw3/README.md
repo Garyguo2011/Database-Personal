@@ -3,7 +3,7 @@
 #### Points: [10% of your final grade](https://sites.google.com/site/cs186spring2015/home/basic-information)
 #### Note: *This homework is to be done individually!*
 #### Due: Friday, February 27, 2015, 11:59 PM
-
+ 
 ###Description
 
 In this homework, we will exercise your newly acquired SQL skills.   You will be writing queries against Postgres using public data.  In the first part, we'll do some warm-up queries and, in the second part, we'll implement a non-trivial graph algorithm in SQL.
