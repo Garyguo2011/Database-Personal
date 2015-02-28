@@ -93,12 +93,33 @@ AS
 
 -- Question 5
 CREATE VIEW q5 (name, total_pac_donations) AS
-  SELECT 1,1 -- replace this line
+  WITH left_join (id, name, amount) as (
+    SELECT C.id, C.name, SUM(I2.transaction_amt)
+    FROM committees C LEFT OUTER JOIN (
+      SELECT * FROM individual_contributions I
+      WHERE I.entity_tp = 'ORG'
+    ) I2 ON C.id = I2.cmte_id
+    GROUP BY C.id, C.name
+  )
+  SELECT L.name, L.amount
+  FROM left_join L
+  ;
 ;
 
 -- Question 6
 CREATE VIEW q6 (id) AS
-  SELECT 1 -- replace this line
+  SELECT DISTINCT C.cand_id
+  FROM committee_contributions as C 
+  WHERE C.entity_tp = 'PAC' AND cand_id is NOT NULL
+  GROUP BY C.cand_id
+
+  INTERSECT
+
+  SELECT DISTINCT D.cand_id
+  FROM committee_contributions as D 
+  WHERE D.entity_tp = 'CCM' AND cand_id is NOT NULL
+  GROUP BY D.cand_id
+  ;
 ;
 
 -- Question 7
