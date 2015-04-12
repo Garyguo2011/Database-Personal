@@ -77,49 +77,53 @@ TransactionHistogram.prototype.render = function(data) {
 
     // // Add a rectangle to this bar grouping`
     grouping.append("rect")
+      .attr("fill", this.currentColorState)
+      .transition().duration(500)
       .attr("x", function(d) { return that.xScale(d.x); })
       .attr("y", function(d) { return that.height - that.yScale(d.y); })
       .attr("width", this.width/(this.bins.length + 1) - 1)
-      .attr("height", function(d) { return that.yScale(d.y); })
-      .attr("fill", this.currentColorState)
-      .transition().duration(500);
+      .attr("height", function(d) { return that.yScale(d.y); });
 
     grouping.append("text")
+      .attr("fill", )
+      .transition().duration(500)
       .attr("text-anchor", "middle")
+      .attr("front-size", "10px")
       .attr("x", function (d) { return that.xScale(d.x); })
       .attr("y", function (d) { return that.height - that.yScale(d.y); })
-      .text(function (d) { return that.formatBinCount(d.y); })
-      .transition().duration(500);
+      .attr("dx", 18)
+      .text(function (d) { return that.formatBinCount(d.y); });
 
     /** Update phase */
     // Implement
-    
-    that.svg.selectAll('.bar')
-      .data(histogramData, function(d) { return d.x; })
-      .selectAll("rect")
-        .attr("x", function(d) { return that.xScale(d.x); })
-        .attr("y", function(d) { return that.height - that.yScale(d.y); })
-        .attr("width", this.width/(this.bins.length + 1) - 1)
-        .attr("height", function(d) { return that.yScale(d.y); })
-        .attr("fill", this.currentColorState)
-        .transition().duration(500);
 
     that.svg.selectAll('.bar')
       .data(histogramData, function(d) { return d.x; })
-      .selectAll("text")
+      .select("rect")
+        .attr("fill", this.currentColorState)
+        .transition().duration(500)
+        .attr("x", function(d) { return that.xScale(d.x); })
+        .attr("y", function(d) { return that.height - that.yScale(d.y); })
+        .attr("width", this.width/(this.bins.length + 1) - 1)
+        .attr("height", function(d) { return that.yScale(d.y); });
+
+    that.svg.selectAll('.bar')
+      .data(histogramData, function(d) { return d.x; })
+      .select("text")
+        .attr("fill", )
+        .transition().duration(500)
         .attr("text-anchor", "middle")
+        .attr("front-size", "10px")
         .attr("x", function (d) { return that.xScale(d.x); })
         .attr("y", function (d) { return that.height - that.yScale(d.y); })
-        .text(function (d) { return that.formatBinCount(d.y); })
-        .transition().duration(500);
+        .attr("dx", 18)
+        .text(function (d) { return that.formatBinCount(d.y); });
 
     /** Exit phase */
     // Implement
     bar.exit()
-      .selectAll("rect")
-        .attr("height", 0)
-      .remove()
-      .transition().duration(500);
+      .transition().duration(500) 
+      .remove();
 
     // Draw / update the axis as well
     this.drawAxis();
@@ -193,9 +197,6 @@ TransactionHistogram.prototype.setScale = function (data) {
       .domain([0, d3.max(histogramData, function(d) { return d.y; })])
       .range([0, this.height]);
 
-    console.log(this.yScale);
-
-
     return histogramData;
 };
 
@@ -211,11 +212,10 @@ TransactionHistogram.prototype.hasScaleSet = function () {
 };
 
 TransactionHistogram.prototype.colorStates = {
-    'PRIMARY': 1,
-    'SECONDARY': 2,
-    'DEFAULT': 0
+    'PRIMARY': '#FE8910',
+    'SECONDARY': '#02C06C',
+    'DEFAULT': '#FFB324'
 }
-
 
 /*
  * setBarColor()
