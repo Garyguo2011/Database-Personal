@@ -85,7 +85,7 @@ DashboardController.prototype.processChanges = function () {
 
         // Implement ! 
         renderData = this.filterTransactionsByMapSelection();
-        this.transactionHistogram.setScale(this.allTransactions);
+        this.transactionHistogram.setScale(renderData);
         this.transactionHistogram.setHistogramColor(this.transactionHistogram.colorStates.PRIMARY);
     } else if (this.usCashMap.hasSelection()) {
         // Selection is just hovered upon
