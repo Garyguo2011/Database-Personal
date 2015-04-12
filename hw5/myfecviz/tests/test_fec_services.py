@@ -29,25 +29,6 @@ class FECServiceTest(FlaskClientTestCase):
         self.assertIn('state', result)
         self.assertIn('amount', result)
 
-    # def test_get_all_transaction_amounts_correct(self):
-    #     """Verify the first dict has the right keys."""
-
-    #     db.execute("SELECT transaction_amt, state FROM committee_contributions")
-    #     whole_data = [dict(amount=float(row[0]), state=row[1]) for row in db.fetchall()]
-
-    #     for record in whole_data:
-    #         if record['amount'] > 0:
-    #             self.assertIn('amount', result)
-
-
-    #     results = fec.get_all_transaction_amounts()
-    #     result = results[0]
-
-    #     # Inspect first result for proper keys
-    #     self.assertIn('state', result)
-    #     self.assertIn('amount', result)    
-
-
     def test_get_total_transaction_amounts_by_state(self):
         """Verify transaction amount groupings have the right keys."""
         results = fec.get_total_transaction_amounts_by_state()

@@ -82,7 +82,7 @@ DashboardController.prototype.processChanges = function () {
     if (this.usCashMap.isSelectionClick() && this.usCashMap.hasSelection()) {
         // Selection was clicked
         // Make sure transaction histogram is rescaled to just the selection
-        
+
         // Implement ! 
         renderData = this.filterTransactionsByMapSelection();
         this.transactionHistogram.setScale(this.allTransactions);
@@ -119,7 +119,7 @@ DashboardController.prototype.filterTransactionsByMapSelection = function () {
     // Implement
     var selectedStates = this.usCashMap.getStatesInSelection();
 
-    function isSelectedStates(d){    
+    function isSelectedStates(d){
         var testState = d['state'];
         if (selectedStates.indexOf(testState) != -1) {
             return true;

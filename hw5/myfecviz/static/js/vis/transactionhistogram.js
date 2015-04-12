@@ -75,7 +75,7 @@ TransactionHistogram.prototype.render = function(data) {
                     .append("g")
                       .attr("class", "bar");
 
-    // // Add a rectangle to this bar grouping`
+    // Add a rectangle to this bar grouping`
     grouping.append("rect")
       .attr("fill", this.currentColorState)
       .transition().duration(500)
@@ -84,6 +84,7 @@ TransactionHistogram.prototype.render = function(data) {
       .attr("width", this.width/(this.bins.length + 1) - 1)
       .attr("height", function(d) { return that.yScale(d.y); });
 
+    // Add text to this bar grouping
     grouping.append("text")
       .transition().duration(500)
       .attr("text-anchor", "middle")
@@ -121,7 +122,7 @@ TransactionHistogram.prototype.render = function(data) {
     /** Exit phase */
     // Implement
     bar.exit()
-      .transition().duration(500) 
+      .transition().duration(500)
       .remove();
 
     // Draw / update the axis as well
