@@ -92,6 +92,13 @@ TransactionHistogram.prototype.render = function(data) {
       .attr("x", function (d) { return that.xScale(d.x); })
       .attr("y", function (d) { return that.height - that.yScale(d.y); })
       .attr("dx", 18)
+      .attr("dy", function (d) {
+        if (that.yScale(d.y) > 50) {
+          return 10;
+        } else {
+          return 0;
+        }
+      })
       .text(function (d) { return that.formatBinCount(d.y); });
 
     /** Update phase */
@@ -116,6 +123,13 @@ TransactionHistogram.prototype.render = function(data) {
         .attr("x", function (d) { return that.xScale(d.x); })
         .attr("y", function (d) { return that.height - that.yScale(d.y); })
         .attr("dx", 18)
+        .attr("dy", function (d) {
+          if (that.yScale(d.y) > 50) {
+            return 10;
+          } else {
+            return 0;
+          }
+        })
         .text(function (d) { return that.formatBinCount(d.y); });
 
     /** Exit phase */
