@@ -119,9 +119,9 @@ USCashMap.prototype.render = function (data) {
         .attr("fill", function(d) {
             // Change the color based on the state's total contribution amount
             // Hint: take a look at moneyColorScale defined above
-
+            
             // Implement
-            return '#000';  // Return a hexcode
+            return moneyColorScale(d['total_amount']);  // Return a hexcode
         });
 
     /** Exit phase **/
@@ -148,7 +148,10 @@ USCashMap.prototype.render = function (data) {
         // defined function.
 
         // Implement
-        console.log("Component received a mouseover event!");  // Remove when implemented
+        // console.log("Component received a mouseover event!");  // Remove when implemented
+        that.addStateToSelection(d['state']);
+        d3.select(this).attr('fill', '#4CAF92');
+        that.setInspectionInfo(that.stateNameMap.get(d['state']), d['total_amount']);
     });
 
     /*
@@ -169,7 +172,10 @@ USCashMap.prototype.render = function (data) {
         // defined function.
 
         // Implement
-        console.log("Component received a mouseout event!");  // Remove when implemented
+        // console.log("Component received a mouseout event!");  // Remove when implemented
+        that.clearInspectionInfo();
+        that.removeStateFromSelection(d['state']);
+        d3.select(this).attr('fill', moneyColorScale(d['total_amount']));
     });
 
     /*
@@ -193,7 +199,10 @@ USCashMap.prototype.render = function (data) {
         // defined function.
 
         // Implement
-        console.log("Component received a click!");  // Remove when implemented
+        // console.log("Component received a click!");  // Remove when implemented
+        that.addStateToSelection(d['state']);
+        d3.select(this).attr('fill', '#FF8000');
+        that.setInspectionInfo(that.stateNameMap.get(d['state']), d['total_amount']);
     });
 };
 

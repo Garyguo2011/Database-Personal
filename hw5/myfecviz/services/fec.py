@@ -29,11 +29,30 @@ def get_all_transaction_amounts():
 
     :return: List of dictionaries with 'state' and 'amount' keys
     """
-    raise NotImplementedError('Needs implementation')
+    # raise NotImplementedError('Needs implementation')
     # Execute database query
 
+    db.execute("SELECT transaction_amt, state FROM committee_contributions WHERE transaction_amt > 0;")
+    results = [dict(amount=float(row[0]), state=row[1]) for row in db.fetchall()]
+
+    f = open("record.txt", 'w')
+
+    for result in results:
+        if result['state'] == "CA":
+            f.write(str(result) + '\n')
+
+    # f.write(str(results))
+
+    # print(type(results))
+    # print(results[0])
+    # print(type(results[0]))
+    # results.insert(0, ('state','amount'))
+    # print type(results)
+    # print results[0]
+    # print type(results[0])
+    
     # Package into output
-    return []
+    return results
 
 
 def get_total_transaction_amounts_by_state():
@@ -44,8 +63,10 @@ def get_total_transaction_amounts_by_state():
 
     :returns: List of dictionaries with 'state' and 'total_amount' keys
     """
-    raise NotImplementedError('Needs implementation')
+    # raise NotImplementedError('Needs implementation')
     # Execute database query
+    db.execute("SELECT state, SUM(transaction_amt) FROM committee_contributions WHERE transaction_amt > 0 GROUP BY state;")
+    results = [dict(state=row[0], total_amount=float(row[1])) for row in db.fetchall()]
 
     # Package into list of dictionaries
-    return []
+    return results

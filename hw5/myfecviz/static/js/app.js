@@ -82,13 +82,19 @@ DashboardController.prototype.processChanges = function () {
     if (this.usCashMap.isSelectionClick() && this.usCashMap.hasSelection()) {
         // Selection was clicked
         // Make sure transaction histogram is rescaled to just the selection
-
+        
         // Implement ! 
+        renderData = this.filterTransactionsByMapSelection();
+        this.transactionHistogram.setScale(renderData);
+        this.transactionHistogram.setHistogramColor(this.transactionHistogram.colorStates.PRIMARY);
     } else if (this.usCashMap.hasSelection()) {
         // Selection is just hovered upon
         // Use scale representing all of data (for a visually relative measure) 
 
         // Implement ! 
+        renderData = this.filterTransactionsByMapSelection();
+        this.transactionHistogram.setScale(renderData);
+        this.transactionHistogram.setHistogramColor(this.transactionHistogram.colorStates.SECONDARY);
     } else {
         // No user interaction
         // Process the map like normal
@@ -98,7 +104,7 @@ DashboardController.prototype.processChanges = function () {
     }
 
     // Uncomment the following line when you're ready!
-    // this.transactionHistogram.render(renderData);
+    this.transactionHistogram.render(renderData);
 };
 
 /*
@@ -111,5 +117,15 @@ DashboardController.prototype.processChanges = function () {
  */
 DashboardController.prototype.filterTransactionsByMapSelection = function () {
     // Implement
-    return [];
+    var selectedStates = this.usCashMap.getStatesInSelection();
+
+    function isSelectedStates(d){    
+        var testState = d['state'];
+        if (selectedStates.indexOf(testState) != -1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return this.allTransactions.filter(isSelectedStates);
 };

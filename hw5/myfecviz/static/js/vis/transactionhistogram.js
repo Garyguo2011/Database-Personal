@@ -66,24 +66,60 @@ TransactionHistogram.prototype.render = function(data) {
     /** Histogram visualization setup **/
     // Select the bar groupings and bind to the histogram data
     var bar = this.svg.selectAll('.bar')
-          .data(histogramData, function(d) {return d.x;});
+          .data(histogramData, function(d) { return d.x; });
 
     /* Enter phase */
     // Implement
     // Add a new grouping
+    var grouping = bar.enter()
+                    .append("g")
+                      .attr("class", "bar");
 
-    // Add a rectangle to this bar grouping
+    // // Add a rectangle to this bar grouping`
+    grouping.append("rect")
+      .attr("x", function(d) { return that.xScale(d.x); })
+      .attr("y", function(d) { return that.height - that.yScale(d.y); })
+      .attr("width", this.width/(this.bins.length + 1) - 1)
+      .attr("height", function(d) { return that.yScale(d.y); })
+      .attr("fill", this.currentColorState)
+      .transition().duration(500);
 
-    // Add text to this bar grouping
-
+    grouping.append("text")
+      .attr("text-anchor", "middle")
+      .attr("x", function (d) { return that.xScale(d.x); })
+      .attr("y", function (d) { return that.height - that.yScale(d.y); })
+      .text(function (d) { return that.formatBinCount(d.y); })
+      .transition().duration(500);
 
     /** Update phase */
     // Implement
+    
+    that.svg.selectAll('.bar')
+      .data(histogramData, function(d) { return d.x; })
+      .selectAll("rect")
+        .attr("x", function(d) { return that.xScale(d.x); })
+        .attr("y", function(d) { return that.height - that.yScale(d.y); })
+        .attr("width", this.width/(this.bins.length + 1) - 1)
+        .attr("height", function(d) { return that.yScale(d.y); })
+        .attr("fill", this.currentColorState)
+        .transition().duration(500);
 
+    that.svg.selectAll('.bar')
+      .data(histogramData, function(d) { return d.x; })
+      .selectAll("text")
+        .attr("text-anchor", "middle")
+        .attr("x", function (d) { return that.xScale(d.x); })
+        .attr("y", function (d) { return that.height - that.yScale(d.y); })
+        .text(function (d) { return that.formatBinCount(d.y); })
+        .transition().duration(500);
 
     /** Exit phase */
     // Implement
-
+    bar.exit()
+      .selectAll("rect")
+        .attr("height", 0)
+      .remove()
+      .transition().duration(500);
 
     // Draw / update the axis as well
     this.drawAxis();
@@ -153,7 +189,12 @@ TransactionHistogram.prototype.setScale = function (data) {
       .range(d3.range(0, this.width, this.width/(this.bins.length + 1)));
 
     // Implement: define a suitable yScale given the data
-    this.yScale;
+    this.yScale = d3.scale.linear()
+      .domain([0, d3.max(histogramData, function(d) { return d.y; })])
+      .range([0, this.height]);
+
+    console.log(this.yScale);
+
 
     return histogramData;
 };
