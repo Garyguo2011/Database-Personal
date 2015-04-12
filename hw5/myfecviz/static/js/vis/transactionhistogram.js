@@ -110,7 +110,6 @@ TransactionHistogram.prototype.render = function(data) {
     that.svg.selectAll('.bar')
       .data(histogramData, function(d) { return d.x; })
       .select("text")
-        .attr("fill", )
         .transition().duration(500)
         .attr("text-anchor", "middle")
         .attr("front-size", "10px")
