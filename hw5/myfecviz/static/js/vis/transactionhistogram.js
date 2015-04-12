@@ -85,7 +85,6 @@ TransactionHistogram.prototype.render = function(data) {
       .attr("height", function(d) { return that.yScale(d.y); });
 
     grouping.append("text")
-      .attr("fill", )
       .transition().duration(500)
       .attr("text-anchor", "middle")
       .attr("front-size", "10px")
